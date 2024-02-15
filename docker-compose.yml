@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  postgres:
+    hostname: postgres
+    container_name: dfg-postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_INITDB_ARGS: "-A md5"
+    ports:
+      - "5432:5432"
+    # volumes:
+    #   - ./mocha/migrations/20230728043352_initial.up.sql:/docker-entrypoint-initdb.d/init.sql
+  pgadmin:
+    container_name: dfg-pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: anishsinha0128@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: anishsinha
+    ports:
+      - "8889:80"
+    hostname: pgadmin
+    depends_on:
+      - postgres
+  redis:
+    hostname: redis
+    container_name: dfg-redis
+    image: redis
+    ports:
+      - "6379:6379"
+  redis-insight:
+    hostname: redis-ui
+    container_name: dfg-redis-ui
+    image: redislabs/redisinsight
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
