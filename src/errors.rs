@@ -28,7 +28,7 @@ pub enum LaunchError {
     InvalidAuthProvider(String, String),
     #[error("invalid auth0 tenant. error: {0}")]
     InvalidAuth0Tenant(String),
-    #[error("error initializing {0} authentication provider. error: {0}")]
+    #[error("error initializing {0} authentication provider. error: {1}")]
     InitAuth(String, String),
     #[error("unknown internal server failure. error: {0}")]
     Internal(String),

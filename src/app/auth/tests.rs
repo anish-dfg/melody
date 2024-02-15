@@ -11,7 +11,7 @@ pub async fn test_build_auth0_provider() {
     let tenant_uri =
         env::var("AUTH0_TENANT").expect("invalid or missing AUTH0_TENANT environment variable");
 
-    let auth0 = Auth0::new(&tenant_uri)
+    let auth0 = Auth0::new(&tenant_uri, vec![])
         .await
         .map_err(|e| e.to_string())
         .unwrap();
@@ -26,7 +26,7 @@ pub async fn test_auth0_authenticate() {
     let tenant_uri =
         env::var("AUTH0_TENANT").expect("invalid or missing AUTH0_TENANT environment variable");
 
-    let auth0 = Auth0::new(&tenant_uri)
+    let auth0 = Auth0::new(&tenant_uri, vec![])
         .await
         .map_err(|e| e.to_string())
         .unwrap();

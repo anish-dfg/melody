@@ -14,7 +14,7 @@ pub fn routes(state: Arc<AppState>) -> Router<()> {
         .route("/completions", routing::get(|| async move { "here" }))
         .route_layer(middleware::from_fn_with_state(
             state.clone(),
-            auth::route_guard,
+            auth::simple_route_guard,
         ))
         .with_state(state)
 }

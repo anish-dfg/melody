@@ -1,9 +1,10 @@
-use super::{auth0::Auth0UserData, errors::AuthError};
+use super::{auth0::Auth0UserData, errors::AuthError, noop::NoOpUserData};
 
 pub enum UserData {
     Auth0(Auth0UserData),
     Keycloak,
     Okta,
+    NoOp(NoOpUserData),
 }
 
 #[async_trait::async_trait]

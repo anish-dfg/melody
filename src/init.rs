@@ -64,8 +64,16 @@ async fn build_services() -> ServiceLayer {
             let tenant_uri = env::var("AUTH0_TENANT")
                 .map_err(|e| LaunchError::InvalidAuth0Tenant(e.to_string()))
                 .unwrap();
+
+            let aud_raw = env::var("AUTH0_AUDIENCES")
+                .map_err(|e| LaunchError::InitAuth("Auth0".into(), e.to_string()))
+                .unwrap();
+
+            let audiences: Vec<String> =
+                aud_raw.split_ascii_whitespace().map(|a| a.into()).collect();
+
             Box::new(
-                Auth0::new(&tenant_uri)
+                Auth0::new(&tenant_uri, audiences)
                     .await
                     .map_err(|e| LaunchError::InitAuth("Auth0".into(), e.to_string()))
                     .unwrap(),

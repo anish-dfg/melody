@@ -39,11 +39,12 @@ pub struct Auth0Configuration {
 #[derive(Debug, Clone)]
 pub struct Auth0 {
     pub tenant_base_uri: String,
+    pub audiences: Vec<String>,
     pub configuration: Auth0Configuration,
 }
 
 impl Auth0 {
-    pub async fn new(tenant_base_uri: &str) -> Result<Self, AuthError> {
+    pub async fn new(tenant_base_uri: &str, audiences: Vec<String>) -> Result<Self, AuthError> {
         let discovery_endpoint = tenant_base_uri.to_owned() + "/.well-known/openid-configuration";
         let res = reqwest::get(&discovery_endpoint)
             .await
@@ -55,6 +56,7 @@ impl Auth0 {
         Ok(Auth0 {
             tenant_base_uri: tenant_base_uri.into(),
             configuration,
+            audiences,
         })
     }
 }
@@ -97,12 +99,15 @@ impl Authenticator for Auth0 {
                         AlgorithmParameters::RSA(rsa) => {
                             let (n, e) = (rsa.n, rsa.e);
 
+                            let mut validator = Validation::new(header.alg);
+                            validator.set_audience(&self.audiences);
+
                             let decoded = jsonwebtoken::decode::<Value>(
                                 token,
                                 &DecodingKey::from_rsa_components(&n, &e).map_err(|e| {
                                     AuthError::InvalidToken(AUTHENTICATOR_ID.into(), e.to_string())
                                 })?,
-                                &Validation::new(header.alg),
+                                &validator,
                             )
                             .map_err(|e| {
                                 AuthError::InvalidToken(AUTHENTICATOR_ID.into(), e.to_string())
