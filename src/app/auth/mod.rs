@@ -1,8 +1,7 @@
 pub mod auth0;
 pub mod authenticator;
 mod errors;
-mod noop;
-mod openid;
+pub mod noop;
 
 #[cfg(test)]
 mod tests;
@@ -17,7 +16,7 @@ use axum::{
     Json,
 };
 
-use crate::{app::auth::errors::AuthError, state::AppState};
+use crate::state::AppState;
 
 pub async fn simple_route_guard(
     State(state): State<Arc<AppState>>,
@@ -26,47 +25,40 @@ pub async fn simple_route_guard(
     next: Next,
 ) -> Response {
     let auth_header = headers.get("Authorization");
-    match auth_header {
+
+    let raw_auth_header = match auth_header {
         Some(opaque) => match opaque.to_str() {
-            Ok(bearer_token) => {
-                log::info!("{bearer_token}");
-                let authenticator = &state.services.auth;
-                let token: &str = match bearer_token.len() > 7 {
-                    true => &bearer_token[7..],
-                    _ => {
-                        return (
-                            StatusCode::BAD_REQUEST,
-                            Json(serde_json::json!({"msg": "malformed auth header"})),
-                        )
-                            .into_response()
-                    }
-                };
-                let user_data = authenticator.authenticate(token).await;
-                match user_data {
-                    Ok(_) => {
-                        let res = next.run(req).await;
-                        res
-                    }
-                    Err(e) => {
-                        log::error!("{}", e.to_string());
-                        (
-                            StatusCode::UNAUTHORIZED,
-                            Json(serde_json::json!({"msg": "unauthorized"})),
-                        )
-                            .into_response()
-                    }
-                }
+            Ok(bearer_token) => bearer_token,
+            Err(_) => {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(serde_json::json!({"msg": "missing authorization header"})),
+                )
+                    .into_response()
             }
-            Err(_) => (
-                StatusCode::BAD_REQUEST,
-                Json(serde_json::json!({"msg": "missing authorization header"})),
-            )
-                .into_response(),
         },
-        None => (
-            StatusCode::BAD_REQUEST,
-            Json(serde_json::json!({"msg": "missing authorization header"})),
-        )
-            .into_response(),
+        None => "",
+    };
+
+    let token: &str = if raw_auth_header.len() > 7 {
+        &raw_auth_header[7..]
+    } else {
+        raw_auth_header
+    };
+
+    let authenticator = &state.services.auth;
+    match authenticator.authenticate(token).await {
+        Ok(data) => {
+            let res = next.run(req).await;
+            res
+        }
+        Err(e) => {
+            log::error!("{}", e.to_string());
+            (
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({"msg": "unauthorized"})),
+            )
+                .into_response()
+        }
     }
 }

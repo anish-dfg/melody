@@ -4,7 +4,7 @@ use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use crate::{
     app::{
         api,
-        auth::{auth0::Auth0, authenticator::Authenticator},
+        auth::{auth0::Auth0, authenticator::Authenticator, noop::NoOpAuth},
         openai::OpenAIClient,
         storage::{cache, sql},
         types::AssetBackend,
@@ -79,6 +79,7 @@ async fn build_services() -> ServiceLayer {
                     .unwrap(),
             )
         }
+        "noop" => Box::new(NoOpAuth::new()),
         _ => unimplemented!(),
     };
 
