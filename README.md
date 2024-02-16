@@ -7,7 +7,23 @@ Built with love, with Rust.
 
 ## Getting Started
 
-todo!
+- Install rust: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+- Use nightly toolchain for rust: `rustup toolchain install nightly`
+- Make nightly your default toolchain: `rustup default nightly`
+- Install cargo watch: `cargo install cargo-watch`
+
+- Install docker
+- Start the docker containers: `docker compose up` (if you run into issues and
+  want to clean restart, use `docker compose down && docker compose up --build`)
+
+- Create a `.env` file following the `.env.example`. Set the values.
+
+- Start the rust server in watch mode: `cargo watch -x run`
+
+#### NOTES
+
+- Set the AUTH_PROVIDER value in .env to `noop` to disable authentication. Use
+  `auth0` if you have valid Auth0 credentials
 
 ## Contributing
 
