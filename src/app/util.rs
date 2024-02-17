@@ -2,7 +2,7 @@ pub mod rng {
 
     use rand::{distributions::Alphanumeric, Rng};
 
-    #[inline]
+    #[allow(unused)]
     pub fn random_alphanumeric_string(len: usize) -> String {
         rand::thread_rng()
             .sample_iter(&Alphanumeric)
@@ -15,7 +15,7 @@ pub mod rng {
 pub mod time {
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    #[inline(always)]
+    #[allow(unused)]
     pub fn now() -> usize {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)

@@ -3,9 +3,7 @@ use sqlx::PgPool;
 
 use crate::{
     app::{
-        auth::{auth0::Auth0, authenticator::Authenticator},
-        openai::OpenAIClient,
-        storage::cache::RedisPool,
+        auth::authenticator::Authenticator, openai::OpenAIClient, storage::cache::RedisPool,
         types::AssetBackend,
     },
     launch::LaunchMode,
