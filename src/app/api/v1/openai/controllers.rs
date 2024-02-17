@@ -15,9 +15,13 @@ pub async fn post_chat_message(
 ) -> (StatusCode, Response) {
     match state.services.ai.get_chat_completion(&data).await {
         Ok(chat) => (StatusCode::OK, Json(chat).into_response()),
-        Err(_) => (
-            StatusCode::BAD_REQUEST,
-            Json(serde_json::json!({"msg": "unable to retrieve chat completion"})).into_response(),
-        ),
+        Err(e) => {
+            log::error!("{}", e.to_string());
+            (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({"msg": "unable to retrieve chat completion"}))
+                    .into_response(),
+            )
+        }
     }
 }

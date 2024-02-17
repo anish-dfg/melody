@@ -3,6 +3,7 @@ use std::error::Error;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use serde_with::skip_serializing_none;
 
 use super::errors::OpenAIError;
 use super::OpenAIClient;
@@ -115,11 +116,14 @@ impl OpenAIClient {
             .json(&opts)
             .send()
             .await
-            .map_err(|e| OpenAIError::CreateChat(e.to_string()))?;
-        let completion = res
-            .json()
-            .await
-            .map_err(|e| OpenAIError::Serialize(e.to_string()))?;
+            .map_err(|e| {
+                log::error!("{}", e.to_string());
+                OpenAIError::CreateChat(e.to_string())
+            })?;
+        let completion = res.json().await.map_err(|e| {
+            log::error!("{}", e.to_string());
+            OpenAIError::Serialize(e.to_string())
+        })?;
         Ok(completion)
     }
 }

@@ -10,11 +10,11 @@ mod controllers;
 
 pub fn routes(state: Arc<AppState>) -> Router<()> {
     Router::new()
-        // .route("/", routing::post(post_chat_message))
-        .route(
-            "/completions",
-            routing::get(|| async move { Json(serde_json::json!({"msg": "here"})) }),
-        )
+        .route("/completions", routing::post(post_chat_message))
+        // .route(
+        //     "/completions",
+        //     routing::get(|| async move { Json(serde_json::json!({"msg": "here"})) }),
+        // )
         .route_layer(middleware::from_fn_with_state(
             state.clone(),
             auth::simple_route_guard,
